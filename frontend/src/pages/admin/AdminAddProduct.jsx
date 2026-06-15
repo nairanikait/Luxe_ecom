@@ -13,19 +13,8 @@ const AdminAddProduct = () => {
   const [price, setPrice] = useState('')
   const [stock, setStock] = useState('')
   const [category, setCategory] = useState('Outerwear')
-  const [imgUrl, setImgUrl] = useState('')
+  const [imgUrls, setImgUrls] = useState(['', '', '', ''])
   const [isLoading, setIsLoading] = useState(false)
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImgUrl(reader.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -36,6 +25,7 @@ const AdminAddProduct = () => {
     setIsLoading(true)
     setTimeout(() => {
       const selectedSizes = Object.keys(sizes).filter(size => sizes[size])
+      const finalImages = imgUrls.map(u => u.trim()).filter(Boolean)
       
       addProduct({
         name,
@@ -44,7 +34,7 @@ const AdminAddProduct = () => {
         stock: Number(stock),
         category,
         sku: `SKU-${Math.floor(10000 + Math.random() * 90000)}`,
-        images: imgUrl.trim() ? [imgUrl.trim()] : ['https://images.unsplash.com/photo-1571781526291-c477ebef020d?w=600&q=80&fit=crop'],
+        images: finalImages.length > 0 ? finalImages : ['https://images.unsplash.com/photo-1571781526291-c477ebef020d?w=600&q=80&fit=crop'],
         sizes: selectedSizes.length > 0 ? selectedSizes : ['S', 'M', 'L'],
         colors: [{ label: 'Charcoal', hex: '#374151' }] // Default color
       })
@@ -53,7 +43,7 @@ const AdminAddProduct = () => {
       setDescription('')
       setPrice('')
       setStock('')
-      setImgUrl('')
+      setImgUrls(['', '', '', ''])
       setSizes({ XS: false, S: false, M: false, L: false, XL: false, XXL: false })
     }, 1000)
   }
@@ -133,34 +123,58 @@ const AdminAddProduct = () => {
             
             {/* Product Images */}
             <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '6px', padding: '24px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#111', marginBottom: '24px' }}>Product Images</h2>
+              <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#111', marginBottom: '20px' }}>Product Images (Max 4)</h2>
               
-              <div 
-                onClick={() => fileInputRef.current.click()}
-                style={{ 
-                  border: '1px dashed #d1d5db', borderRadius: '6px', padding: '32px 16px', 
-                  textAlign: 'center', marginBottom: '16px', cursor: 'pointer', background: '#fafafa' 
-                }}
-              >
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleImageChange} 
-                  accept="image/*" 
-                  style={{ display: 'none' }} 
-                />
-                <div style={{ width: '40px', height: '40px', background: '#f3f4f6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', color: '#4b5563' }}>
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+              {imgUrls.map((url, idx) => (
+                <div key={idx} style={{ border: '1px solid #e5e7eb', borderRadius: '6px', padding: '12px', marginBottom: '16px', background: '#fafafa' }}>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Image {idx + 1}</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: url ? '56px 1fr' : '1fr', gap: '12px', alignItems: 'center' }}>
+                    {url && (
+                      <div style={{ width: '56px', height: '56px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+                        <img src={url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Preview" />
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <input 
+                        type="text" 
+                        value={url} 
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setImgUrls(prev => {
+                            const copy = [...prev]
+                            copy[idx] = val
+                            return copy
+                          })
+                        }} 
+                        placeholder="Paste image URL here" 
+                        style={{ width: '100%', border: '1px solid #e5e7eb', padding: '8px 10px', fontSize: '12px', outline: 'none', borderRadius: '4px', boxSizing: 'border-box', fontFamily: 'inherit', background: '#fff' }} 
+                      />
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <span style={{ fontSize: '11px', color: '#9ca3af' }}>or</span>
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={(e) => {
+                            const file = e.target.files[0]
+                            if (file) {
+                              const reader = new FileReader()
+                              reader.onloadend = () => {
+                                setImgUrls(prev => {
+                                  const copy = [...prev]
+                                  copy[idx] = reader.result
+                                  return copy
+                                })
+                              }
+                              reader.readAsDataURL(file)
+                            }
+                          }}
+                          style={{ fontSize: '11px', color: '#6b7280' }} 
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <p style={{ fontSize: '12px', fontWeight: 600, color: '#111', marginBottom: '4px' }}>Click to upload image file</p>
-                <p style={{ fontSize: '10px', color: '#6b7280' }}>PNG, JPG, JPEG</p>
-              </div>
-
-              {imgUrl.trim() && (
-                <div style={{ aspectRatio: '1', background: '#f3f4f6', borderRadius: '4px', overflow: 'hidden', border: '1px solid #e5e7eb', marginBottom: '16px' }}>
-                  <img src={imgUrl.trim()} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Preview" />
-                </div>
-              )}
+              ))}
             </div>
 
             {/* Organization */}
