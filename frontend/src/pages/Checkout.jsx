@@ -28,6 +28,7 @@ const Checkout = () => {
   const [card, setCard] = useState({ number: '', expiry: '', cvv: '' })
   const [activePayment, setActivePayment] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
+  const [paymentStatus, setPaymentStatus] = useState('')
 
   const handleForm = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }))
 
@@ -38,10 +39,43 @@ const Checkout = () => {
       return
     }
     setIsLoading(true)
+
+    const steps = {
+      0: [
+        "Connecting to secure SSL card network...",
+        "Authorizing credit card transaction...",
+        "Payment authorized. Creating order..."
+      ],
+      1: [
+        "Connecting to PayPal Sandbox...",
+        "Verifying PayPal account balance...",
+        "PayPal payment authorized. Creating order..."
+      ],
+      2: [
+        "Initializing Apple Pay session...",
+        "Verifying Face ID signature...",
+        "Apple Pay authorized. Creating order..."
+      ],
+      3: [
+        "Validating delivery address...",
+        "Preparing cash on delivery details...",
+        "Finalizing your order..."
+      ]
+    }[activePayment];
+
+    setPaymentStatus(steps[0]);
+
     setTimeout(() => {
-      placeOrder(form, shippingMethod, activePayment)
-      setIsLoading(false)
-    }, 1200)
+      setPaymentStatus(steps[1]);
+      setTimeout(() => {
+        setPaymentStatus(steps[2]);
+        setTimeout(() => {
+          placeOrder(form, shippingMethod, activePayment)
+          setIsLoading(false)
+          setPaymentStatus('')
+        }, 1000);
+      }, 1200);
+    }, 1000);
   }
 
   const subtotal = getCartTotal()
@@ -220,6 +254,33 @@ const Checkout = () => {
         </div>
       </main>
       <Footer variant="checkout" />
+      {isLoading && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', color: '#fff',
+          backdropFilter: 'blur(4px)', fontFamily: 'Inter, sans-serif'
+        }}>
+          <div style={{
+            width: '40px', height: '40px', border: '3px solid rgba(255,255,255,0.1)',
+            borderTop: '3px solid #fff', borderRadius: '50%',
+            animation: 'spin 1s linear infinite', marginBottom: '24px'
+          }} />
+          <p style={{
+            fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase',
+            fontWeight: 600, color: '#fff', marginBottom: '8px'
+          }}>
+            {activePayment === 3 ? 'Processing Order' : 'Processing Payment'}
+          </p>
+          <p style={{ fontSize: '13px', color: '#a1a1aa', letterSpacing: '0.02em' }}>{paymentStatus}</p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   )
 }

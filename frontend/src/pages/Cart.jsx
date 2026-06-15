@@ -102,14 +102,6 @@ const Cart = () => {
               <Link to="/checkout" style={{ display: 'block', width: '100%', background: '#1e3a5f', color: '#fff', textAlign: 'center', padding: '14px', fontSize: '11px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none', marginBottom: '10px', boxSizing: 'border-box' }}>Proceed to Checkout</Link>
               <Link to="/collection" style={{ display: 'block', width: '100%', border: '1px solid #d1d5db', color: '#111', textAlign: 'center', padding: '13px', fontSize: '11px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', textDecoration: 'none', boxSizing: 'border-box' }}>Continue Shopping</Link>
 
-              <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #f3f4f6' }}>
-                <p style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#9ca3af', marginBottom: '12px' }}>Accepted Payments</p>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {['Card', 'PayPal', 'Apple Pay', 'Cash on Delivery'].map((text, i) => (
-                    <div key={i} style={{ padding: '6px 10px', border: '1px solid #e5e7eb', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 600, color: '#4b5563', letterSpacing: '0.05em', background: '#fafafa' }}>{text}</div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         </div>
